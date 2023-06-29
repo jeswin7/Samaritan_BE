@@ -109,6 +109,20 @@ app.get('/mentors', (req, res) => {
 })
 
 
+app.get('/filterMentors', (req, res) => {
+  let {
+    type,
+    value
+  } = req.body;
+
+  let sql = "SELECT* FROM MENTOR WHERE " + type + "=" + value;
+
+  db.query(sql, (err, result) => {
+    if(err) throw err;
+    res.send(result);
+  })
+ })
+
 // Add Mentor API
 app.post('/addmentor', (req, res) => {
   console.log('trigger mentor add API', req.body)
