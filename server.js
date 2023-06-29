@@ -17,9 +17,7 @@ var db = mysql.createConnection({
 });
 
 db.connect((err)=>{
-    if(err){
-        throw err;
-    }
+    if(err) throw err;
     console.log('MySQL connected')
 })
 
@@ -32,8 +30,6 @@ app.get('/createdb', (req, res) => {
     res.send('db created...')
   })
 })
-
-// Create DB table API Call
 
 
 
@@ -128,14 +124,15 @@ app.get('/users', (req, res) => {
 
       let sql = "INSERT INTO MENTOR (fname, lname, num, email) VALUES ('"+firstName+"' ,'"+lastName+"' ,'"+contactNumber+"' ,'"+email+"')";
       db.query(sql, (err, result) => {
-        if (err) throw err;
+        if (err) throw new Error("oops something happened");
         console.log("mentor record inserted");
+        result.send("mentor record inserted")
       });
     })
 
 
 
-
+  // Login API
   app.get('/login', async (req, res) => {
     const { email, password } = req.query;
   
@@ -165,6 +162,9 @@ app.get('/users', (req, res) => {
     }
   });
   
+
+
+
   
 
 
