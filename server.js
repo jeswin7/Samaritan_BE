@@ -218,6 +218,25 @@ app.post('/addConnection', (req, res) => {
 
 // --------------------------------------------------------------
 
+
+// Shared APIs - APIs that all 3 user roles would be using
+
+// Get all connections
+app.get('/connections', (req, res) => {
+  console.log('get all connections triggered')
+  
+  let sql = "SELECT * FROM CONNECTION"
+
+  db.query(sql, (err, result) => {
+    if(err) throw(err);
+    res.send(result);
+  })
+})
+
+
+// --------------------------------------------------------------
+
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
