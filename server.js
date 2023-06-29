@@ -130,7 +130,22 @@ app.post('/addmentor', (req, res) => {
 
 
 
+// Update connection by mentor - accept/decline
+app.post('/updateConnection', (req, res) => {
+  console.log('add conn triggered')
+  const {
+    id,
+    status
+  } = req.body;
 
+  let sql = "UPDATE CONNECTION SET `status`='"+ status + "' WHERE id=" + id;
+
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+    console.log('connection updated');
+    res.send(result)
+  })
+})
 
 
 // --------------------------------------------------------------
@@ -180,6 +195,46 @@ app.post('/addseeker', (req, res) => {
   });
 })
 
+
+// Add connection
+app.post('/addConnection', (req, res) => {
+  console.log('add conn triggered')
+  const {
+    seekerId,
+    mentorId,
+    serviceId,
+    status
+  } = req.body;
+
+  let sql = "INSERT INTO CONNECTION (seekerId, mentorId, serviceId, status) VALUES ('" + seekerId + "','" + mentorId + "','" + serviceId + "','" + status + "')";
+  console.log(sql);
+
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+    console.log('connection inserted');
+    res.send(result)
+  })
+})
+
+// --------------------------------------------------------------
+
+
+// Shared APIs - APIs that all 3 user roles would be using
+
+// Get all connections
+app.get('/connections', (req, res) => {
+  console.log('get all connections triggered')
+  
+  let sql = "SELECT * FROM CONNECTION"
+
+  db.query(sql, (err, result) => {
+    if(err) throw(err);
+    res.send(result);
+  })
+})
+
+
+// --------------------------------------------------------------
 
 
 app.listen(port, () => {
