@@ -115,7 +115,7 @@ app.get('/filterMentors', (req, res) => {
     value
   } = req.body;
 
-  let sql = "SELECT* FROM MENTOR WHERE " + type + "=" + value;
+  let sql = "SELECT * FROM MENTOR WHERE " + type + "=" + value;
 
   db.query(sql, (err, result) => {
     if(err) throw err;
