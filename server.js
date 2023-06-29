@@ -130,7 +130,22 @@ app.post('/addmentor', (req, res) => {
 
 
 
+// Update connection by mentor - accept/decline
+app.post('/updateConnection', (req, res) => {
+  console.log('add conn triggered')
+  const {
+    id,
+    status
+  } = req.body;
 
+  let sql = "UPDATE CONNECTION SET `status`='"+ status + "' WHERE id=" + id;
+
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+    console.log('connection updated');
+    res.send(result)
+  })
+})
 
 
 // --------------------------------------------------------------
