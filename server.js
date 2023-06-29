@@ -181,6 +181,27 @@ app.post('/addseeker', (req, res) => {
 })
 
 
+// Add connection
+app.post('/addConnection', (req, res) => {
+  console.log('add conn triggered')
+  const {
+    seekerId,
+    mentorId,
+    serviceId,
+    status
+  } = req.body;
+
+  let sql = "INSERT INTO CONNECTION (seekerId, mentorId, serviceId, status) VALUES ('" + seekerId + "','" + mentorId + "','" + serviceId + "','" + status + "')";
+  console.log(sql);
+
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+    console.log('connection inserted');
+    res.send(result)
+  })
+})
+
+// --------------------------------------------------------------
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
