@@ -69,13 +69,17 @@ app.get('/login', async (req, res) => {
     });
 
     let userValid = false;
+    let role = "";
     result.forEach((item) => {
-      if (item.email === email && item.pwd === password)
+      if (item.email === email && item.pwd === password){
         userValid = true;
+        role = item.role;
+      }
     });
 
     const response = {
-      status: userValid ? 200 : 400
+      status: userValid ? 200 : 400,
+      role
     };
 
     res.status(response.status).json(response);
