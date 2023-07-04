@@ -112,6 +112,23 @@ app.get('/mentors', (req, res) => {
   })
 })
 
+// get single mentor based on id
+app.get('/mentorDetail', (req, res) => {
+  let {
+    user_id
+  } = req.query
+  let sql = 'SELECT * FROM MENTOR WHERE `id`='+user_id;
+
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+
+    result.forEach((item, index) => {
+      console.log(index, '-', item)
+    })
+
+    res.send(result)
+  })
+})
 
 app.get('/filterMentors', (req, res) => {
   let {
