@@ -70,16 +70,19 @@ app.get('/login', async (req, res) => {
 
     let userValid = false;
     let role = "";
+    let userId = null;
     result.forEach((item) => {
       if (item.email === email && item.pwd === password){
         userValid = true;
         role = item.role;
+        userId = item.user_id
       }
     });
 
     const response = {
       status: userValid ? 200 : 400,
-      role
+      role,
+      userId
     };
 
     res.status(response.status).json(response);
@@ -130,6 +133,25 @@ app.get('/mentorDetail', (req, res) => {
   })
 })
 
+
+// get all connection requests send to a specific mentor(based on id)
+app.get('/mentor/connectionRequests', (req, res) => {
+  let {
+    user_id
+  } = req.query
+  let sql = 'SELECT * FROM CONNECTION WHERE `mentorId`='+user_id;
+
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+
+    result.forEach((item, index) => {
+      console.log(index, '-', item)
+    })
+
+    res.send(result)
+  })
+})
+
 app.get('/filterMentors', (req, res) => {
   let {
     type,
@@ -166,12 +188,12 @@ app.post('/addmentor', (req, res) => {
 
 
 // Update connection by mentor - accept/decline
-app.post('/updateConnection', (req, res) => {
+app.get('/updateConnection', (req, res) => {
   console.log('add conn triggered')
   const {
     id,
     status
-  } = req.body;
+  } = req.query;
 
   let sql = "UPDATE CONNECTION SET `status`='"+ status + "' WHERE id=" + id;
 
@@ -232,24 +254,40 @@ app.post('/addseeker', (req, res) => {
 
 
 // Add connection
-app.post('/addConnection', (req, res) => {
-  console.log('add conn triggered')
-  const {
-    seekerId,
-    mentorId,
-    serviceId,
-    status
-  } = req.body;
+app.post('/addConnection', async (req, res) => {
+  console.log('add conn triggered');
+  const { seekerId, mentorId, serviceId } = req.body;
 
-  let sql = "INSERT INTO CONNECTION (seekerId, mentorId, serviceId, status) VALUES ('" + seekerId + "','" + mentorId + "','" + serviceId + "','" + status + "')";
-  console.log(sql);
+  try {
+    // Get Seeker data
+    const getSeekerQuery = `SELECT * FROM SEEKER WHERE id=${seekerId}`;
+    const seekerResult = await new Promise((resolve, reject) => {
+      db.query(getSeekerQuery, (err, result) => {
+        if (err) reject(err);
+        resolve(result);
+      });
+    });
 
-  db.query(sql, (err, result) => {
-    if (err) throw (err);
-    console.log('connection inserted');
-    res.send(result)
-  })
-})
+    const seekerName = seekerResult[0].fname + " " + seekerResult[0].lname;
+    console.log(seekerName);
+
+    const insertConnectionQuery = `INSERT INTO CONNECTION (seekerId, mentorId, serviceId, status, seekerName) VALUES (${seekerId}, ${mentorId}, ${serviceId}, 'PENDING', '${seekerName}')`;
+    console.log(insertConnectionQuery);
+
+    await new Promise((resolve, reject) => {
+      db.query(insertConnectionQuery, (err, result) => {
+        if (err) reject(err);
+        console.log('connection inserted');
+        res.send(result);
+        resolve();
+      });
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 // --------------------------------------------------------------
 
