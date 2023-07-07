@@ -254,38 +254,67 @@ app.post('/addseeker', (req, res) => {
 
 
 // Add connection
-app.post('/addConnection', async (req, res) => {
+app.post('/addConnection', (req, res) => {
   console.log('add conn triggered');
   const { seekerId, mentorId, serviceId } = req.body;
 
-  try {
-    // Get Seeker data
-    const getSeekerQuery = `SELECT * FROM SEEKER WHERE id=${seekerId}`;
-    const seekerResult = await new Promise((resolve, reject) => {
-      db.query(getSeekerQuery, (err, result) => {
-        if (err) reject(err);
-        resolve(result);
-      });
-    });
+  // Get Seeker data
+  let seekerName = ""; // Declare as a let variable to allow updating its value
+  let sub_sql = `SELECT * FROM SEEKER WHERE id=${seekerId}`;
+  db.query(sub_sql, (err, result) => {
+    if (err) throw err;
+    else {
+      seekerName = result[0].fname + " " + result[0].lname; // Update the value of seekerName
+      let sql = `INSERT INTO CONNECTION (seekerId, mentorId, serviceId, status, seekerName) VALUES (${seekerId}, ${mentorId}, ${serviceId}, 'PENDING', '${seekerName}')`;
+      console.log(sql);
 
-    const seekerName = seekerResult[0].fname + " " + seekerResult[0].lname;
-    console.log(seekerName);
-
-    const insertConnectionQuery = `INSERT INTO CONNECTION (seekerId, mentorId, serviceId, status, seekerName) VALUES (${seekerId}, ${mentorId}, ${serviceId}, 'PENDING', '${seekerName}')`;
-    console.log(insertConnectionQuery);
-
-    await new Promise((resolve, reject) => {
-      db.query(insertConnectionQuery, (err, result) => {
-        if (err) reject(err);
+      db.query(sql, (err, result) => {
+        if (err) throw err;
         console.log('connection inserted');
         res.send(result);
-        resolve();
+      });
+    }
+  });
+});
+
+
+
+
+
+// get all connection requests send by a specific seeker(based on id)
+app.get('/seeker/connectionRequests', (req, res) => {
+  let { user_id } = req.query;
+  let sql = 'SELECT * FROM CONNECTION WHERE `seekerId`=' + user_id;
+
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+
+    let promiseArray = result.map((item) => {
+      let sub_sql = 'SELECT * FROM MENTOR WHERE `id`=' + item.mentorId;
+
+      return new Promise((resolve, reject) => {
+        db.query(sub_sql, (err, mentorResult) => {
+          if (err) reject(err);
+
+          let tempResponse = {
+            connection: item,
+            mentor: mentorResult,
+          };
+
+          resolve(tempResponse);
+        });
       });
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
+
+    Promise.all(promiseArray)
+      .then((results) => {
+        res.send(results);
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+      });
+  });
 });
 
 
