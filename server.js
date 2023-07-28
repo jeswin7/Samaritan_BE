@@ -403,14 +403,14 @@ app.get('/admin/dashboard', (req, res) => {
   let sql3 = 'SELECT COUNT(*) AS ongoing FROM SERVICE WHERE status="PENDING"'
   db.query(sql3, (err, result) => {
     if (err) throw (err);
-    api = { ...api, ...result[0] }
+    service = { ...service, ...result[0] }
 
   })
 
   let sql4 = 'SELECT COUNT(*) AS failed FROM SERVICE WHERE status="FAILED"'
   db.query(sql4, (err, result) => {
     if (err) throw (err);
-    api = { ...api, ...result[0] }
+    service = { ...service, ...result[0] }
 
 
   })
@@ -418,7 +418,7 @@ app.get('/admin/dashboard', (req, res) => {
   let sql5 = 'SELECT COUNT(*) AS completed FROM SERVICE WHERE status="COMPLETED"'
   db.query(sql5, (err, result) => {
     if (err) throw (err);
-    api = { ...api, ...result[0] }
+    service = { ...service, ...result[0] }
   })
 
 
@@ -426,21 +426,21 @@ app.get('/admin/dashboard', (req, res) => {
   let sql6 = 'SELECT COUNT(*) AS applied FROM MENTOR WHERE onboardStatus="APPLIED"'
   db.query(sql6, (err, result) => {
     if (err) throw (err);
-    api = { ...api, ...result[0] }
+    mentorsStatus = { ...mentorsStatus, ...result[0] }
   })
 
   let sql7 = 'SELECT COUNT(*) AS invited FROM MENTOR WHERE onboardStatus="INVITED"'
   db.query(sql7, (err, result) => {
     if (err) throw (err);
-    api = { ...api, ...result[0] }
+    mentorsStatus = { ...mentorsStatus, ...result[0] }
   })
 
   let sql8 = 'SELECT COUNT(*) AS approved FROM MENTOR WHERE onboardStatus="APPROVED"'
   db.query(sql8, (err, result) => {
     if (err) throw (err);
-    api = { ...api, ...result[0] }
+    mentorsStatus = { ...mentorsStatus, ...result[0] }
 
-    res.send(api)
+    res.send({...api, service, mentorsStatus})
   })
 
 })
