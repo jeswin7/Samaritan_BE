@@ -133,6 +133,40 @@ app.get('/mentorDetail', (req, res) => {
   })
 })
 
+// Filter mentors API
+app.get('', async (req, res) => {
+
+
+  db.query(sql, (err, result) => {
+    if(err) throw(err);
+
+    res.send(result);
+  })
+})
+
+app.get('/mentors/filter', async (req, res) => {
+  let {
+    filterName,
+    filterValue
+  } = req.query;
+
+  try {
+    const result = await new Promise((resolve, reject) => {
+      let sql = 'SELECT * FROM MENTOR WHERE ' + filterName + '=' + filterValue;
+      db.query(sql, (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      });
+    });
+
+    res.send(result)
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 // get all connection requests send to a specific mentor(based on id)
 app.get('/mentor/connectionRequests', (req, res) => {
@@ -152,13 +186,14 @@ app.get('/mentor/connectionRequests', (req, res) => {
   })
 })
 
-app.get('/filterMentors', (req, res) => {
+// Mentor filter API
+app.get('/mentors/filter', (req, res) => {
   let {
-    type,
-    value
-  } = req.body;
+    filterName,
+    filterValue
+  } = req.query;
 
-  let sql = "SELECT * FROM MENTOR WHERE " + type + "=" + value;
+  let sql = "SELECT * FROM MENTOR WHERE " + filterName + "=" + filterValue;
 
   db.query(sql, (err, result) => {
     if(err) throw err;
@@ -335,6 +370,77 @@ app.get('/connections', (req, res) => {
   })
 })
 
+
+
+// --------------------------------------------------------------
+
+
+
+
+// ADMIN APIs
+
+// get all seekers
+app.get('/admin/dashboard', (req, res) => {
+  let api = {};
+  let service = {};
+  let mentorsStatus = {}
+
+  let sql = 'SELECT COUNT(*) AS seekerCount FROM SEEKER'
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+    api = {...result[0]}
+  })
+
+  let sql2 = 'SELECT COUNT(*) AS mentorCount FROM MENTOR'
+  db.query(sql2, (err, result) => {
+    if (err) throw (err);
+    api = {...api, ...result[0]}
+  })
+
+  let sql3 = 'SELECT COUNT(*) AS ongoing FROM SERVICE WHERE status="PENDING"'
+  db.query(sql3, (err, result) => {
+    if (err) throw (err);
+    service = {...service, ...result[0]} 
+    
+  })
+
+  let sql4 = 'SELECT COUNT(*) AS failed FROM SERVICE WHERE status="FAILED"'
+  db.query(sql4, (err, result) => {
+    if (err) throw (err);
+    service = {...service, ...result[0]} 
+  
+
+  })
+
+  let sql5 = 'SELECT COUNT(*) AS completed FROM SERVICE WHERE status="COMPLETED"'
+  db.query(sql5, (err, result) => {
+    if (err) throw (err); 
+    service = {...service, ...result[0]} 
+  })
+
+
+  // Mentor's status data
+  let sql6 = 'SELECT COUNT(*) AS applied FROM MENTOR WHERE onboardStatus="APPLIED"'
+  db.query(sql6, (err, result) => {
+    if (err) throw (err); 
+    mentorsStatus = {...mentorsStatus, ...result[0]} 
+  })
+
+  let sql7 = 'SELECT COUNT(*) AS invited FROM MENTOR WHERE onboardStatus="INVITED"'
+  db.query(sql7, (err, result) => {
+    if (err) throw (err); 
+    mentorsStatus = {...mentorsStatus, ...result[0]} 
+  })
+
+  let sql8 = 'SELECT COUNT(*) AS approved FROM MENTOR WHERE onboardStatus="APPROVED"'
+  db.query(sql8, (err, result) => {
+    if (err) throw (err); 
+    mentorsStatus = {...mentorsStatus, ...result[0]} 
+
+    res.send({...api, service: {...service}, mentorsStatus: {...mentorsStatus}})
+  })
+
+}) 
 
 // --------------------------------------------------------------
 
