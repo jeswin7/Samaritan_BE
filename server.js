@@ -510,7 +510,22 @@ app.get('/admin/viewServices', (req, res) => {
 
 
 
+// Update payment status by admin - completed
+app.get('/admin/updatePayment', (req, res) => {
 
+  const {
+    id,
+    status
+  } = req.query;
+
+  let sql = "UPDATE PAYMENT SET `status`='"+ status + "' WHERE id=" + id;
+
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+    console.log('payment updated');
+    res.send(result)
+  })
+})
 
 
 // --------------------------------------------------------------
