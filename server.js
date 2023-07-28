@@ -75,7 +75,7 @@ app.get('/login', async (req, res) => {
     let role = "";
     let userId = null;
     result.forEach((item) => {
-      if (item.email === email && item.pwd === password){
+      if (item.email === email && item.pwd === password) {
         userValid = true;
         role = item.role;
         userId = item.user_id
@@ -123,7 +123,7 @@ app.get('/mentorDetail', (req, res) => {
   let {
     user_id
   } = req.query
-  let sql = 'SELECT * FROM MENTOR WHERE `id`='+user_id;
+  let sql = 'SELECT * FROM MENTOR WHERE `id`=' + user_id;
 
   db.query(sql, (err, result) => {
     if (err) throw err;
@@ -141,7 +141,7 @@ app.get('', async (req, res) => {
 
 
   db.query(sql, (err, result) => {
-    if(err) throw(err);
+    if (err) throw (err);
 
     res.send(result);
   })
@@ -176,7 +176,7 @@ app.get('/mentor/connectionRequests', (req, res) => {
   let {
     user_id
   } = req.query
-  let sql = 'SELECT * FROM CONNECTION WHERE `mentorId`='+user_id;
+  let sql = 'SELECT * FROM CONNECTION WHERE `mentorId`=' + user_id;
 
   db.query(sql, (err, result) => {
     if (err) throw err;
@@ -199,10 +199,10 @@ app.get('/mentors/filter', (req, res) => {
   let sql = "SELECT * FROM MENTOR WHERE " + filterName + "=" + filterValue;
 
   db.query(sql, (err, result) => {
-    if(err) throw err;
+    if (err) throw err;
     res.send(result);
   })
- })
+})
 
 // Add Mentor API
 app.post('/addmentor', (req, res) => {
@@ -233,7 +233,7 @@ app.get('/updateConnection', (req, res) => {
     status
   } = req.query;
 
-  let sql = "UPDATE CONNECTION SET `status`='"+ status + "' WHERE id=" + id;
+  let sql = "UPDATE CONNECTION SET `status`='" + status + "' WHERE id=" + id;
 
   db.query(sql, (err, result) => {
     if (err) throw (err);
@@ -364,11 +364,11 @@ app.get('/seeker/connectionRequests', (req, res) => {
 // Get all connections
 app.get('/connections', (req, res) => {
   console.log('get all connections triggered')
-  
+
   let sql = "SELECT * FROM CONNECTION"
 
   db.query(sql, (err, result) => {
-    if(err) throw(err);
+    if (err) throw (err);
     res.send(result);
   })
 })
@@ -391,59 +391,59 @@ app.get('/admin/dashboard', (req, res) => {
   let sql = 'SELECT COUNT(*) AS seekerCount FROM SEEKER'
   db.query(sql, (err, result) => {
     if (err) throw (err);
-    api = {...result[0]}
+    api = { ...result[0] }
   })
 
   let sql2 = 'SELECT COUNT(*) AS mentorCount FROM MENTOR'
   db.query(sql2, (err, result) => {
     if (err) throw (err);
-    api = {...api, ...result[0]}
+    api = { ...api, ...result[0] }
   })
 
   let sql3 = 'SELECT COUNT(*) AS ongoing FROM SERVICE WHERE status="PENDING"'
   db.query(sql3, (err, result) => {
     if (err) throw (err);
-    service = {...service, ...result[0]} 
-    
+    service = { ...service, ...result[0] }
+
   })
 
   let sql4 = 'SELECT COUNT(*) AS failed FROM SERVICE WHERE status="FAILED"'
   db.query(sql4, (err, result) => {
     if (err) throw (err);
-    service = {...service, ...result[0]} 
-  
+    service = { ...service, ...result[0] }
+
 
   })
 
   let sql5 = 'SELECT COUNT(*) AS completed FROM SERVICE WHERE status="COMPLETED"'
   db.query(sql5, (err, result) => {
-    if (err) throw (err); 
-    service = {...service, ...result[0]} 
+    if (err) throw (err);
+    service = { ...service, ...result[0] }
   })
 
 
   // Mentor's status data
   let sql6 = 'SELECT COUNT(*) AS applied FROM MENTOR WHERE onboardStatus="APPLIED"'
   db.query(sql6, (err, result) => {
-    if (err) throw (err); 
-    mentorsStatus = {...mentorsStatus, ...result[0]} 
+    if (err) throw (err);
+    mentorsStatus = { ...mentorsStatus, ...result[0] }
   })
 
   let sql7 = 'SELECT COUNT(*) AS invited FROM MENTOR WHERE onboardStatus="INVITED"'
   db.query(sql7, (err, result) => {
-    if (err) throw (err); 
-    mentorsStatus = {...mentorsStatus, ...result[0]} 
+    if (err) throw (err);
+    mentorsStatus = { ...mentorsStatus, ...result[0] }
   })
 
   let sql8 = 'SELECT COUNT(*) AS approved FROM MENTOR WHERE onboardStatus="APPROVED"'
   db.query(sql8, (err, result) => {
-    if (err) throw (err); 
-    mentorsStatus = {...mentorsStatus, ...result[0]} 
+    if (err) throw (err);
+    mentorsStatus = { ...mentorsStatus, ...result[0] }
 
-    res.send({...api, service: {...service}, mentorsStatus: {...mentorsStatus}})
+    res.send({ ...api, service: { ...service }, mentorsStatus: { ...mentorsStatus } })
   })
 
-}) 
+})
 
 
 // Services API for admin console
@@ -509,6 +509,85 @@ app.get('/admin/viewServices', (req, res) => {
 });
 
 
+// Get all payments for dmin
+app.get('/admin/viewPayments', (req, res) => {
+  let api = []
+  let sql = "SELECT * FROM PAYMENT";
+
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+
+    // Function to fetch service data using serviceId
+    const fetchServiceData = (serviceId) => {
+      return new Promise((resolve, reject) => {
+        let serviceSql = 'SELECT * FROM SERVICE WHERE id = ?';
+        db.query(serviceSql, [serviceId], (serviceErr, serviceResult) => {
+          if (serviceErr) reject(serviceErr); // Handle seekerErr using reject
+          resolve(serviceResult[0]);
+        });
+      });
+    };
+
+    // Function to fetch seeker data using seekerId
+    const fetchSeekerData = (seekerId) => {
+      return new Promise((resolve, reject) => {
+        let seekerSql = 'SELECT * FROM SEEKER WHERE id = ?';
+        db.query(seekerSql, [seekerId], (seekerErr, seekerResult) => {
+          if (seekerErr) reject(seekerErr); // Handle seekerErr using reject
+          resolve(seekerResult[0]);
+        });
+      });
+    };
+
+    // Function to fetch mentor data using mentorId
+    const fetchMentorData = (mentorId) => {
+      return new Promise((resolve, reject) => {
+        let mentorSql = 'SELECT * FROM MENTOR WHERE id = ?';
+        db.query(mentorSql, [mentorId], (mentorErr, mentorResult) => {
+          if (mentorErr) reject(mentorErr); // Handle mentorErr using reject
+          resolve(mentorResult[0]);
+        });
+      });
+    };
+
+
+    // Fetch data for each service in the result
+    Promise.all(
+      result.map(async (item) => {
+        const subApi = {};
+
+        try {
+          // Fetch individual service data using serviceId
+          subApi.service = await fetchServiceData(item.serviceId);
+
+
+          // Fetch individual seeker data using seekerId
+          subApi.seeker = await fetchSeekerData(subApi.service.seekerId);
+
+          // Fetch individual mentor data using mentorId
+          subApi.mentor = await fetchMentorData(subApi.service.mentorId);
+
+
+          // Add other service data to subApi object
+          subApi.type = SERVICE_MAP[subApi.service.type ];
+          subApi.status = item.status;
+
+          // Add the subApi object to the api array
+          api.push(subApi);
+        } catch (error) {
+          console.error(error); // Handle any errors that occurred during the fetch
+        }
+      })
+    )
+      .then(() => {
+        res.send(api);
+      })
+      .catch((error) => {
+        console.error(error); // Handle any errors that occurred during the Promise.all
+      });
+  })
+})
+
 
 // Update payment status by admin - PENDING/COMPLETED
 app.get('/admin/updatePayment', (req, res) => {
@@ -518,7 +597,7 @@ app.get('/admin/updatePayment', (req, res) => {
     status
   } = req.query;
 
-  let sql = "UPDATE PAYMENT SET status ='"+ status + "' WHERE id=" + id;
+  let sql = "UPDATE PAYMENT SET status ='" + status + "' WHERE id=" + id;
 
   db.query(sql, (err, result) => {
     if (err) throw (err);
@@ -536,7 +615,7 @@ app.get('/admin/mentorOnboardStatus/update', (req, res) => {
     status
   } = req.query;
 
-  let sql = "UPDATE MENTOR SET onboardStatus ='"+ status + "' WHERE id=" + id;
+  let sql = "UPDATE MENTOR SET onboardStatus ='" + status + "' WHERE id=" + id;
 
   db.query(sql, (err, result) => {
     if (err) throw (err);
