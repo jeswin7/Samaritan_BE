@@ -510,7 +510,7 @@ app.get('/admin/viewServices', (req, res) => {
 
 
 
-// Update payment status by admin - completed
+// Update payment status by admin - PENDING/COMPLETED
 app.get('/admin/updatePayment', (req, res) => {
 
   const {
@@ -518,11 +518,29 @@ app.get('/admin/updatePayment', (req, res) => {
     status
   } = req.query;
 
-  let sql = "UPDATE PAYMENT SET `status`='"+ status + "' WHERE id=" + id;
+  let sql = "UPDATE PAYMENT SET status ='"+ status + "' WHERE id=" + id;
 
   db.query(sql, (err, result) => {
     if (err) throw (err);
     console.log('payment updated');
+    res.send(result)
+  })
+})
+
+
+// Update mentor onboard status by admin - APPLIED/INVITED/APPROVED
+app.get('/admin/mentorOnboardStatus/update', (req, res) => {
+
+  const {
+    id,
+    status
+  } = req.query;
+
+  let sql = "UPDATE MENTOR SET onboardStatus ='"+ status + "' WHERE id=" + id;
+
+  db.query(sql, (err, result) => {
+    if (err) throw (err);
+    console.log('mentor onboard status updated');
     res.send(result)
   })
 })
