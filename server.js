@@ -589,6 +589,18 @@ app.get('/admin/viewPayments', (req, res) => {
   })
 })
 
+// Payment Detail API
+app.get('/admin/paymentDetail', (req, res) => {
+  const { id } = req.query;
+  
+  let sql = 'SELECT * FROM PAYMENT WHERE id='+id;
+
+  db.query(sql, (err, result) => {
+    if(err) throw err;
+    res.send(result);
+  })
+})
+
 
 // Update payment status by admin - PENDING/COMPLETED
 app.get('/admin/updatePayment', (req, res) => {
