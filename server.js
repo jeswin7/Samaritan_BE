@@ -571,6 +571,7 @@ app.get('/admin/viewPayments', (req, res) => {
           // Add other service data to subApi object
           subApi.type = SERVICE_MAP[subApi.service.type ];
           subApi.status = item.status;
+          subApi.id = item.id;
 
           // Add the subApi object to the api array
           api.push(subApi);
@@ -688,6 +689,21 @@ app.get('/admin/viewConnections', (req, res) => {
       });
   });
 });
+
+// Delete Seeker by Admin
+app.get('/admin/deleteSeeker', (req, res) => {
+  console.log("Delete Seeker")
+  let {
+    id
+  } = req.query
+
+  let sql = 'DELETE FROM SEEKER WHERE id=' + id;
+
+  db.query(sql, (err, result) => {
+    if(err) throw(err);
+    res.send(result)
+  })
+})
 
 // --------------------------------------------------------------
 
