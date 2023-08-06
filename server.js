@@ -717,6 +717,52 @@ app.get('/admin/deleteSeeker', (req, res) => {
   })
 })
 
+// Add Collaborator by Admin
+// Add Mentor API
+app.post('/admin/addCollaborator', (req, res) => {
+  console.log('trigger mentor add API', req.body)
+
+  const {
+    fname,
+    lname,
+    num,
+    city,
+    orgName,
+    orgType,
+    service,
+    orgEmail
+  } = req.body;
+
+  let sql = `INSERT INTO COLLABORATOR (fname, lname, num, city, orgName, orgType, service, orgEmail) VALUES ('${fname}', '${lname}', '${num}', '${city}', '${orgName}', '${orgType}', '${service}', '${orgEmail}')`;
+  console.log(sql)
+  db.query(sql, (err, result) => {
+    if (err) throw new Error("oops something happened");
+    console.log("collaborator record inserted");
+    res.send(result)
+  });
+})
+
+
+// --------------------------------------------------------------
+
+// Communication APIs
+
+// Get Messages between a sender & receiver
+app.get('/getMessages', (req, res) => {
+  let {
+    sender,
+    receiver
+  } = req.query;
+
+  let sql = `SELECT * FROM COMMUNICATION WHERE SENDER=${sender}`
+
+  db.query(sql, (err, result) => {
+    if(err) throw(err);
+    res.send(result);
+  })
+})
+
+
 // --------------------------------------------------------------
 
 
