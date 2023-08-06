@@ -754,7 +754,7 @@ app.get('/getMessages', (req, res) => {
     receiver
   } = req.query;
 
-  let sql = `SELECT * FROM COMMUNICATION WHERE SENDER=${sender}`
+  let sql = `SELECT * FROM COMMUNICATION WHERE SENDER=${sender} AND RECEIVER=${receiver}`
 
   db.query(sql, (err, result) => {
     if(err) throw(err);
