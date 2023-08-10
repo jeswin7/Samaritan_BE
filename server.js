@@ -426,7 +426,7 @@ app.post('/addConnection', (req, res) => {
     if (err) throw err;
     else {
       seekerName = result[0].fname + " " + result[0].lname; // Update the value of seekerName
-      let sql = `INSERT INTO CONNECTION (seekerId, mentorId, serviceId, status, seekerName) VALUES (${seekerId}, ${mentorId}, ${serviceId}, 'PENDING', '${seekerName}')`;
+      let sql = `INSERT INTO CONNECTION (seekerId, mentorId, service, status, seekerName) VALUES (${seekerId}, ${mentorId}, ${serviceId}, 'PENDING', '${seekerName}')`;
       console.log(sql);
 
       db.query(sql, (err, result) => {
