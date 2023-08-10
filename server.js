@@ -264,15 +264,67 @@ app.post('/mentor/addMessage', (req, res) => {
 
 // Services API for mentor console - by mentor ID
 app.get('/mentor/viewServices', (req, res) => {
+  let api = [];
+
   const { mentorId } = req.query;
 
   let sql = 'SELECT * FROM SERVICE WHERE mentorId='+mentorId;
   db.query(sql, (err, result) => {
     if (err) throw err;
 
-    res.send(result);
-  })
-})
+    // Function to fetch seeker data using seekerId
+    const fetchSeekerData = (seekerId) => {
+      return new Promise((resolve, reject) => {
+        let seekerSql = 'SELECT * FROM SEEKER WHERE id = ?';
+        db.query(seekerSql, [seekerId], (seekerErr, seekerResult) => {
+          if (seekerErr) reject(seekerErr); // Handle seekerErr using reject
+          resolve(seekerResult[0]);
+        });
+      });
+    };
+
+    // Function to fetch mentor data using mentorId
+    const fetchMentorData = (mentorId) => {
+      return new Promise((resolve, reject) => {
+        let mentorSql = 'SELECT * FROM MENTOR WHERE id = ?';
+        db.query(mentorSql, [mentorId], (mentorErr, mentorResult) => {
+          if (mentorErr) reject(mentorErr); // Handle mentorErr using reject
+          resolve(mentorResult[0]);
+        });
+      });
+    };
+
+    // Fetch data for each service in the result
+    Promise.all(
+      result.map(async (item) => {
+        const subApi = {};
+
+        try {
+          // Fetch individual seeker data using seekerId
+          subApi.seeker = await fetchSeekerData(item.seekerId);
+
+          // Fetch individual mentor data using mentorId
+          subApi.mentor = await fetchMentorData(item.mentorId);
+
+          // Add other service data to subApi object
+          subApi.type = SERVICE_MAP[item.type];
+          subApi.status = item.status;
+
+          // Add the subApi object to the api array
+          api.push(subApi);
+        } catch (error) {
+          console.error(error); // Handle any errors that occurred during the fetch
+        }
+      })
+    )
+      .then(() => {
+        res.send(api);
+      })
+      .catch((error) => {
+        console.error(error); // Handle any errors that occurred during the Promise.all
+      });
+  });
+});
 
 // --------------------------------------------------------------
 
