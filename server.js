@@ -326,6 +326,19 @@ app.get('/mentor/viewServices', (req, res) => {
   });
 });
 
+// Services status update by mentor
+app.get('/mentor/updateService', (req, res) => {
+
+
+  const { status, mentorId } = req.query;
+
+  let sql = "UPDATE SERVICE SET `status`='" + status + "' WHERE mentorId=" + mentorId;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    res.send(result)
+  });
+});
+
 // --------------------------------------------------------------
 
 
