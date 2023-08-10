@@ -309,6 +309,7 @@ app.get('/mentor/viewServices', (req, res) => {
           // Add other service data to subApi object
           subApi.type = SERVICE_MAP[item.type];
           subApi.status = item.status;
+          subApi.id = item.id;
 
           // Add the subApi object to the api array
           api.push(subApi);
@@ -329,10 +330,11 @@ app.get('/mentor/viewServices', (req, res) => {
 // Services status update by mentor
 app.get('/mentor/updateService', (req, res) => {
 
+  console.log('here')
+  const { status, serviceId } = req.query;
 
-  const { status, mentorId } = req.query;
-
-  let sql = "UPDATE SERVICE SET `status`='" + status + "' WHERE mentorId=" + mentorId;
+  let sql = "UPDATE SERVICE SET `status`='" + status + "' WHERE id=" + serviceId;
+  console.log(sql)
   db.query(sql, (err, result) => {
     if (err) throw err;
     res.send(result)
