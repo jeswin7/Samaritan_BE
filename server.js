@@ -341,17 +341,29 @@ app.get('/mentor/viewServices', (req, res) => {
 });
 
 // Services status update by mentor
-app.get('/mentor/updateService', (req, res) => {
+app.post('/mentor/updateService', (req, res) => {
 
   console.log('here')
-  const { status, serviceId } = req.query;
+  const { status, serviceId, seekerId, mentorId, service } = req.body;
 
   let sql = "UPDATE SERVICE SET `status`='" + status + "' WHERE id=" + serviceId;
-  console.log(sql)
+
+
+
   db.query(sql, (err, result) => {
-    if (err) throw err;
+    if (err) throw (err);
+    console.log('service updated');
+
+
+    if(status === 'COMPLETED'){
+      let subSql = `INSERT INTO PAYMENT (seekerId, mentorId, service, status, serviceId) VALUES ('${seekerId}', '${mentorId}', '${service}', 'PENDING', '${serviceId}')`;
+      db.query(subSql, (err, result) => {
+        if (err) throw (err);
+        console.log('new payment added');
+      })
+    }
     res.send(result)
-  });
+  })
 });
 
 // --------------------------------------------------------------
