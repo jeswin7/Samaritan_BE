@@ -226,18 +226,31 @@ app.post('/addmentor', (req, res) => {
 
 
 // Update connection by mentor - accept/decline
-app.get('/updateConnection', (req, res) => {
-  console.log('add conn triggered')
+app.post('/updateConnection', (req, res) => {
+  console.log('update new conn triggered')
   const {
-    id,
+    id, seekerId, mentorId, service,
     status
-  } = req.query;
+  } = req.body;
+
+
 
   let sql = "UPDATE CONNECTION SET `status`='" + status + "' WHERE id=" + id;
+  console.log('next=', sql)
+
 
   db.query(sql, (err, result) => {
     if (err) throw (err);
     console.log('connection updated');
+
+
+    if(status === 'ACCEPTED'){
+      let subSql = `INSERT INTO SERVICE (seekerId, mentorId, type, status) VALUES ('${seekerId}', '${mentorId}', '${service}', 'PENDING')`;
+      db.query(subSql, (err, result) => {
+        if (err) throw (err);
+        console.log('new service added');
+      })
+    }
     res.send(result)
   })
 })
