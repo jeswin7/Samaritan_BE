@@ -242,6 +242,37 @@ app.get('/updateConnection', (req, res) => {
   })
 })
 
+// Add Mentor Message to admin
+app.post('/mentor/addMessage', (req, res) => {
+  console.log('trigger message add API', req.body)
+
+  const {
+    adminId,
+    mentorId,
+    message
+  } = req.body;
+
+  let sql = `INSERT INTO COMMUNICATION (sender, receiver, content) VALUES ('${mentorId}', '${adminId}', '${message}')`;
+  console.log(sql)
+  db.query(sql, (err, result) => {
+    if (err) throw new Error("oops something happened");
+    console.log("new message added!");
+    res.send(result)
+  });
+})
+
+
+// Services API for mentor console - by mentor ID
+app.get('/mentor/viewServices', (req, res) => {
+  const { mentorId } = req.query;
+
+  let sql = 'SELECT * FROM SERVICE WHERE mentorId='+mentorId;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+
+    res.send(result);
+  })
+})
 
 // --------------------------------------------------------------
 
@@ -761,6 +792,26 @@ app.get('/getMessages', (req, res) => {
     res.send(result);
   })
 })
+
+// Add Mentor API
+app.post('/admin/addMessage', (req, res) => {
+  console.log('trigger message add API', req.body)
+
+  const {
+    adminId,
+    mentorId,
+    message
+  } = req.body;
+
+  let sql = `INSERT INTO COMMUNICATION (sender, receiver, content) VALUES ('${adminId}', '${mentorId}', '${message}')`;
+  console.log(sql)
+  db.query(sql, (err, result) => {
+    if (err) throw new Error("oops something happened");
+    console.log("new message added!");
+    res.send(result)
+  });
+})
+
 
 
 // --------------------------------------------------------------
